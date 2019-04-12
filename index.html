@@ -1,0 +1,384 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>reveal.js</title>
+
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/reveal.css">
+	<link rel="stylesheet" href="css/theme/moon.css">
+
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="lib/css/monokai.css">
+
+	<!-- Printing and PDF exports -->
+	<script>
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+		document.getElementsByTagName('head')[0].appendChild(link);
+	</script>
+	<style>
+		.svg {
+			width: 10rem;
+			height: 10rem;
+			color: #fff;
+			display: inline-block
+		}
+		.svg.small {
+			width: 3rem;
+			height: 3rem;
+			color: #fff;
+			display: inline-block
+		}
+
+		.svg svg {
+			fill: currentColor;
+		}
+
+		.reveal section.img_container {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		.reveal pre {
+			width: 100%;
+		}
+		.reveal pre code  {
+			max-height: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+				<section>
+						<h1>NodeJS performance analysis</h1>
+					</section>
+					<section>
+						<h2>Christian Hennig</h2>
+						ScalaHacker @ inoio.de
+						<div>
+							<div style="float:left">
+								<div class="svg"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 42">
+										<path d="M21.6 0C9.7 0 0 9.6 0 21.5 0 31 6.2 39.1 14.8 42c1.1.2 1.4-.5 1.4-1v-4c-6 1.3-7.3-2.5-7.3-2.5-1-2.5-2.4-3.2-2.4-3.2-2-1.3.1-1.3.1-1.3 2.2.2 3.3 2.2 3.3 2.2 1.9 3.3 5.1 2.3 6.3 1.8.2-1.4.8-2.3 1.4-2.9-4.8-.5-9.9-2.4-9.9-10.6 0-2.4.8-4.3 2.2-5.8-.2-.5-1-2.7.2-5.7 0 0 1.8-.6 6 2.2 1.7-.5 3.6-.7 5.4-.7 1.8 0 3.7.2 5.4.7C31.2 8.4 33 8.9 33 8.9c1.2 3 .4 5.2.2 5.7 1.4 1.5 2.2 3.4 2.2 5.8 0 8.3-5.1 10.1-9.9 10.6.8.7 1.5 2 1.5 4v5.9c0 .6.3 1.2 1.4 1C37 39 43.2 31 43.2 21.5 43.3 9.6 33.6 0 21.6 0z"></path>
+									</svg> </div>
+									<span>caraboides</span><br />
+								<div class="svg"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42">
+										<path d="M21 0C9.4 0 0 9.4 0 21s9.4 21 21 21 21-9.4 21-21S32.6 0 21 0zm10.6 16.9c.3 7.1-5 15-14.3 15-2.8 0-5.5-.8-7.7-2.3 2.7.3 5.3-.4 7.4-2.1-2.2 0-4.1-1.5-4.7-3.5.8.2 1.6.1 2.3-.1-2.4-.5-4.1-2.7-4-5 .7.4 1.5.6 2.3.6-2.2-1.5-2.9-4.5-1.6-6.7 2.5 3 6.2 5 10.4 5.3-.7-3.1 1.7-6.2 4.9-6.2 1.4 0 2.8.6 3.7 1.6 1.1-.2 2.2-.6 3.2-1.2-.4 1.2-1.2 2.2-2.2 2.8 1-.1 2-.4 2.9-.8-.7 1-1.6 1.9-2.6 2.6z"></path>
+									</svg> </div>
+									<span>caraboides</span>
+							</div>
+							<div style="float:right">
+								<img src="./assets/christian.jpg" />
+							</div>
+						</div>
+					</section>
+					<section>
+						<h2>Disclaimer</h2>
+						<p>I'll show you what I've tried to solve my problem.</p>
+						<b class="fragment">But i failed! I did not find the solution for my problem.</b>
+						<p class="fragment">Maybe you have an idea. ;-)</p>
+					</section>
+					<section>
+						<h2>Overview</h2>
+						<ul>
+							<li class="fragment">What's my problem</li>
+							<li class="fragment">How to find the bottlenecks with monitoring</li>
+							<li class="fragment">How to get and analyze CPU profiles</li>
+							<li class="fragment">How to get and analyze heap dump</li>
+							<li class="fragment">Tracing with DataDog</li>
+						</ul>
+						</ul>
+					</section>
+					<section>
+					</section>
+					<section>
+						<h1>Problem</h1>
+						<h2 class="fragment">Service ResponseTime > 1sec</h2>
+						<h2 class="fragment">Nginx abort Requests after 1 sec</h2>
+					</section>
+					<section>
+						<section data-background-image="./assets/k9.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k8.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k7.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k6.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k5.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k4.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k3.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k2.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k1.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k0.svg" data-background-size="contain" data-transition="none"></section>
+						<section data-background-image="./assets/k.svg" data-background-size="contain" data-transition="none"></section>
+					</section>
+					<section>
+						<h3>Step 1</h3>
+						<ul>
+							<li class="fragment">steady and reproducible environment</li>
+							<li class="fragment">documentation of every step: idea, change, impact</li>
+							<li class="fragment">periodic and automatic tests to reproduce your issue</li>
+							<li class="fragment">I use Gatling</li>
+							<img class="fragment" src="./assets/gatling.png">
+						</ul>
+					</section>
+					<section>
+						<h3>Step 2</h3>
+						<ul>
+							<li class="fragment">add monitoring to your NodeJS application</li>
+							<li class="fragment">System which save and display your monitoring data</li>
+							<li class="fragment">Prometheus + Grafana</li>
+							<li class="fragment">Dont use average! Use percentiles like 95p to see spikes!</li>
+							<li class="fragment">npm i --save express-prom-bundle <b>5.1.0</b></li>
+							<pre class="fragment">
+									<code data-trim data-noescape>
+										const metricsMiddleware = require('express-prom-bundle')({
+											percentiles: [ 0.5, 0.75, 0.9, 0.95, 0.99],
+											metricType: 'summary',
+											maxAgeSeconds: 300,
+											ageBuckets: 5
+										})
+										const app = express()
+										app.use(metricsMiddleware)
+								</code>
+							</pre>
+						</ul>
+					</section>
+					<section>
+						<img src="./assets/monitor-req-count.png">
+						<img src="./assets/monitor-req-p95.png">
+					</section>
+					<section>
+						<h3>Step 3</h3>
+						<ul>
+							<li class="fragment">Add more monitoring</li>
+							<li class="fragment">monitor critical code path</li>
+							<li class="fragment">Calls to other Services</li>
+							<li class="fragment">CPU intensive path, e.g. json-parsing or crypto </li>
+						</ul>
+					</section>
+					<section>
+						<pre>
+									<code data-trim data-noescape>
+							const promClient = require('prom-client')
+							const externalCallMonitor = new promClient.Summary({
+								name: 'external_call_duration_ms',
+								percentiles: [0.5, 0.75, 0.9, 0.95, 0.99],
+								maxAgeSeconds: 300,
+								ageBuckets: 5
+							})
+						</code>
+					</pre>
+						<pre class="fragment">
+									<code data-trim data-noescape>
+							const requeststart = process.hrtime()
+							request({uri: "http://reco-server/reco?pid=1"}).
+							then((body) => {
+							  const requestduration = process.hrtime(requeststart)
+							  externalCallMonitor.observe(requestduration[1] / 1000000)
+							})
+						</code>
+					</pre>
+					</section>
+					<section>
+						<img src="./assets/monitor-recoservice.png">
+						<img src="./assets/monitor-db.png">
+						<img src="./assets/monitor-jsx.png">
+					</section>
+					<section>
+						<h3>Step 4</h3>
+						<ul>
+							<li class="fragment">Add more monitoring</li>
+							<li class="fragment">monitor the whole business code path</li>
+							<li class="fragment">From request handling to write the response</li>
+						</ul>
+					</section>
+					<section>
+						<pre >
+									<code data-trim data-noescape>
+					const promClient = require('prom-client')
+					const businessLogicMonitor = new promClient.Summary({
+						name: 'business_logic_duration_ms',
+						percentiles: [0.5, 0.75, 0.9, 0.95, 0.99],
+						maxAgeSeconds: 300,
+						ageBuckets: 5
+					})
+				</code>
+			</pre>
+						<pre class="fragment">
+							<code data-trim data-noescape>
+					router.get('/recos', (req, res) => {
+					  const businessLogicStart = process.hrtime()
+					  businessLogic(req.body)  // Transform Data, Call 3 external Services
+					  .then((html) => {
+						const businessDuration = process.hrtime(businessLogicStart)
+						businessLogicMonitor.observe(businessDuration[1] / 1000000)
+						res.send(html)
+					  })
+					})
+				</code>
+			</pre>
+					</section>
+					<section>
+							<img src="./assets/monitor-businnes.png">
+					</section>
+					<section>
+							<h3>Step 5</h3>
+							<ul>
+								<li class="fragment">CPU Profiling</li>
+								<li class="fragment">node --prof app.js | Was not an option</li>
+								<li class="fragment">npm i --save v8-profiler-node8</li>
+							</ul>
+					</section>
+					<section>
+							<pre >
+									<code data-trim data-noescape>
+											const express = require('express')
+											const router = express.Router()
+											const profiler = require("v8-profiler-node8")
+											
+											router.get('/cpuprofile', (req, res) => {
+											  const id = Date.now() + ".profile"
+											  profiler.startProfiling(id)
+												  // stop profiling in n seconds and exit
+												setTimeout(() => {
+												res.set('Content-Type', 'application/json-home')
+												res.json(profiler.stopProfiling(id))
+												profiler.deleteAllProfiles()
+											}, 10000)
+											})
+											module.exports = router
+									</code>
+							</pre>
+					</section>
+					<section>
+							Chrome analysis
+					</section>
+					<section>
+							<h3>Step 6</h3>
+							<ul>
+								<li class="fragment">Heap Dumps</li>
+								<li class="fragment">npm i --save heapdump</li>
+							</ul>
+					</section>
+					<section>
+							<pre >
+									<code data-trim data-noescape>
+										const express = require('express')
+										const router = express.Router()
+										const heapdump = require('heapdump')
+										const fileSystem = require('fs')
+										router.get('/heapdump', (req, response) => {
+											heapdump.writeSnapshot(function(err, filename) {
+											var stat = fileSystem.statSync(filename);
+											response.writeHead(200, {
+												'Content-Type': 'application/octet-stream',
+												'Content-Length': stat.size
+											});
+											var readStream = fileSystem.createReadStream(filename);
+											readStream.pipe(response);
+											});
+										})
+										module.exports = router
+									</code>
+							</pre>
+					</section>
+					<section>
+						Chrome analysis
+					</section>
+					<section>
+							<h3>Step 7</h3>
+							<ul>
+								<li class="fragment">Add more monitoring</li>
+								<li class="fragment">Monitor GarbageCollection and Internals of nodes</li>
+								<li class="fragment">npm i --save prometheus-gc-stats</li>
+							</ul>
+					</section>
+					<section>
+							<pre >
+									<code data-trim data-noescape>
+											const prometheus = require('prom-client')
+											prometheus.collectDefaultMetrics()
+
+											const gcStats = require('prometheus-gc-stats')
+											const startGcStats = gcStats(prometheus.register)
+											startGcStats();
+									</code>
+							</pre>
+					</section>
+					<section>
+							Demo Board
+					</section>
+					<section>
+							<h3>Step 8</h3>
+							<ul>
+								<li class="fragment">Tracing with DataDog</li>
+								<li class="fragment">npm i --save dd-trace</li>
+								<pre class="fragment">
+										<code data-trim data-noescape>
+								const tracer = require('dd-trace').init()
+								// enable and configure postgresql integration
+								tracer.use('pg', {
+								  service: 'pg-cluster'
+								})
+								// enable and configure express integration
+								tracer.use('express', {
+								  service: 'express-cluster'
+								})
+							</code>
+						</pre>
+							</ul>
+					</section>
+					<section>
+						<h1>
+							DD-Demo
+						</h1>
+					</section>
+					<section>
+						<h1>My next Steps</h1>
+						<ul>
+							<li class="fragment">local setup to reproduce the issue: docker-compose + blockade</li>
+							<li class="fragment">take a deeper look into tcp.connect, [http|tcp]_keep_alive</li>
+							<li class="fragment">rewrite in scala, service issue or environment issue</li>
+						</ul>
+					</section>
+					<section>
+							<h1>Questions ?</h1>
+							<div>
+								Slides: https://github.com/inoio/node-perf-talk
+							</div>
+							<div>
+
+								<div class="small svg"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42">
+									<path d="M21 0C9.4 0 0 9.4 0 21s9.4 21 21 21 21-9.4 21-21S32.6 0 21 0zm10.6 16.9c.3 7.1-5 15-14.3 15-2.8 0-5.5-.8-7.7-2.3 2.7.3 5.3-.4 7.4-2.1-2.2 0-4.1-1.5-4.7-3.5.8.2 1.6.1 2.3-.1-2.4-.5-4.1-2.7-4-5 .7.4 1.5.6 2.3.6-2.2-1.5-2.9-4.5-1.6-6.7 2.5 3 6.2 5 10.4 5.3-.7-3.1 1.7-6.2 4.9-6.2 1.4 0 2.8.6 3.7 1.6 1.1-.2 2.2-.6 3.2-1.2-.4 1.2-1.2 2.2-2.2 2.8 1-.1 2-.4 2.9-.8-.7 1-1.6 1.9-2.6 2.6z"></path>
+								</svg> </div>
+								<span> @caraboides</span>
+							</div>
+					</section>
+		</div>
+	</div>
+
+	<script src="js/reveal.js"></script>
+
+	<script>
+		// More info about config & dependencies:
+		// - https://github.com/hakimel/reveal.js#configuration
+		// - https://github.com/hakimel/reveal.js#dependencies
+		Reveal.initialize({
+			dependencies: [
+				{ src: 'plugin/markdown/marked.js' },
+				{ src: 'plugin/markdown/markdown.js' },
+				{ src: 'plugin/notes/notes.js', async: true },
+				{ src: 'plugin/highlight/highlight.js', async: true }
+			]
+		});
+	</script>
+</body>
+
+</html>
