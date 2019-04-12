@@ -84,26 +84,27 @@
 					<section>
 						<h2>Disclaimer</h2>
 						<p>I'll show you what I've tried to solve my problem.</p>
-						<b class="fragment">But i failed! I did not find the solution for my problem.</b>
+						<b class="fragment">But I failed! I did not find the solution for my problem.</b>
 						<p class="fragment">Maybe you have an idea. ;-)</p>
 					</section>
 					<section>
 						<h2>Overview</h2>
 						<ul>
 							<li class="fragment">What's my problem</li>
-							<li class="fragment">How to find the bottlenecks with monitoring</li>
+							<li class="fragment">How to find bottlenecks with monitoring</li>
 							<li class="fragment">How to get and analyze CPU profiles</li>
-							<li class="fragment">How to get and analyze heap dump</li>
+							<li class="fragment">How to get and analyze heap dumps</li>
 							<li class="fragment">Tracing with DataDog</li>
 						</ul>
 						</ul>
 					</section>
 					<section>
+						<h1>Taschenherz</h1>
 					</section>
 					<section>
 						<h1>Problem</h1>
-						<h2 class="fragment">Service ResponseTime > 1sec</h2>
-						<h2 class="fragment">Nginx abort Requests after 1 sec</h2>
+						<h2 class="fragment">Service Response Time > 1sec</h2>
+						<h2 class="fragment">Nginx aborts Requests after 1 sec</h2>
 					</section>
 					<section>
 						<section data-background-image="./assets/k9.svg" data-background-size="contain" data-transition="none"></section>
@@ -121,9 +122,9 @@
 					<section>
 						<h3>Step 1</h3>
 						<ul>
-							<li class="fragment">steady and reproducible environment</li>
-							<li class="fragment">documentation of every step: idea, change, impact</li>
-							<li class="fragment">periodic and automatic tests to reproduce your issue</li>
+							<li class="fragment">Steady and reproducible environment</li>
+							<li class="fragment">Documentation of every step: idea, change, impact</li>
+							<li class="fragment">Periodic and automatic tests to reproduce your issue</li>
 							<li class="fragment">I use Gatling</li>
 							<img class="fragment" src="./assets/gatling.png">
 						</ul>
@@ -131,10 +132,10 @@
 					<section>
 						<h3>Step 2</h3>
 						<ul>
-							<li class="fragment">add monitoring to your NodeJS application</li>
-							<li class="fragment">System which save and display your monitoring data</li>
+							<li class="fragment">Add monitoring to your NodeJS application</li>
+							<li class="fragment">System which saves and displays your monitoring data</li>
 							<li class="fragment">Prometheus + Grafana</li>
-							<li class="fragment">Dont use average! Use percentiles like 95p to see spikes!</li>
+							<li class="fragment">Don't use average! Use percentiles like 95p to see spikes!</li>
 							<li class="fragment">npm i --save express-prom-bundle <b>5.1.0</b></li>
 							<pre class="fragment">
 									<code data-trim data-noescape>
@@ -158,9 +159,9 @@
 						<h3>Step 3</h3>
 						<ul>
 							<li class="fragment">Add more monitoring</li>
-							<li class="fragment">monitor critical code path</li>
+							<li class="fragment">Monitor critical code paths</li>
 							<li class="fragment">Calls to other Services</li>
-							<li class="fragment">CPU intensive path, e.g. json-parsing or crypto </li>
+							<li class="fragment">CPU intensive paths, e.g. json-parsing or crypto </li>
 						</ul>
 					</section>
 					<section>
@@ -195,8 +196,8 @@
 						<h3>Step 4</h3>
 						<ul>
 							<li class="fragment">Add more monitoring</li>
-							<li class="fragment">monitor the whole business code path</li>
-							<li class="fragment">From request handling to write the response</li>
+							<li class="fragment">Monitor the whole business code path</li>
+							<li class="fragment">From request handling to writing the response</li>
 						</ul>
 					</section>
 					<section>
@@ -343,13 +344,14 @@
 					<section>
 						<h1>My next Steps</h1>
 						<ul>
-							<li class="fragment">local setup to reproduce the issue: docker-compose + blockade</li>
-							<li class="fragment">take a deeper look into tcp.connect, [http|tcp]_keep_alive</li>
-							<li class="fragment">rewrite in scala, service issue or environment issue</li>
+							<li class="fragment">Local setup to reproduce the issue: docker-compose + blockade</li>
+							<li class="fragment">Take a deeper look into tcp.connect, [http|tcp]_keep_alive</li>
+							<li class="fragment">Rewrite in scala: service issue or environment issue?</li>
 						</ul>
 					</section>
 					<section>
 							<h1>Questions ?</h1>
+							<h1>Ideas ?</h1>
 							<div>
 								Slides: https://github.com/inoio/node-perf-talk
 							</div>
